@@ -6,19 +6,37 @@ import json
 import urllib.request
 import hashlib
 
+def get_active_model(api_key, base_url):
+    req = urllib.request.Request(
+        f"{base_url}/models",
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Accept": "application/json",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+        }
+    )
+    try:
+        with urllib.request.urlopen(req) as response:
+            data = json.loads(response.read().decode('utf-8'))
+            models = [m['id'] for m in data.get('data', [])]
+            if models:
+                return models[0]
+    except Exception as e:
+        print(f"[!] Dynamic fetch fallback: {e}")
+    return "meta/llama-3.1-8b-instruct"
+
 def run_nvidia_live_benchmark():
     api_key = os.environ.get("NVIDIA_API_KEY", "") or "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"
-    if not api_key:
-        print("[X] ERROR: NVIDIA_API_KEY environment variable is missing.")
-        return
-
-    endpoint = "https://integrate.api.nvidia.com/v1/chat/completions"
-    model = "meta/llama-3.3-70b-instruct"
+    base_url = "https://integrate.api.nvidia.com/v1"
+    endpoint = f"{base_url}/chat/completions"
+    
+    model = get_active_model(api_key, base_url)
     
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
-        "User-Agent": "ECP-Titanium/1.0"
+        "Accept": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
     }
 
     prompts = [
@@ -42,8 +60,8 @@ def run_nvidia_live_benchmark():
         body = {
             "model": model,
             "messages": [{"role": "user", "content": payload}],
-            "temperature": 0.1,
-            "max_tokens": 16
+            "temperature": 0.2,
+            "max_tokens": 32
         }
 
         start = time.perf_counter()
@@ -109,4 +127,4 @@ os.makedirs(os.path.dirname(path), exist_ok=True)
 with open(path, "w", encoding="utf-8") as f:
     f.write(benchmark_script)
 
-print("[+] Benchmark runner updated.")
+print("[+] Benchmark runner updated with standard headers and dynamic model resolution.")
