@@ -11,10 +11,12 @@ def run_nvidia_live_benchmark():
         return
 
     endpoint = "https://integrate.api.nvidia.com/v1/chat/completions"
-    model = "meta/llama-3.1-70b-instruct"
+    model = "meta/llama-3.3-70b-instruct"
+    
     headers = {
         "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "User-Agent": "ECP-Titanium/1.0"
     }
 
     prompts = [
@@ -58,6 +60,8 @@ def run_nvidia_live_benchmark():
                 
                 payload_hash = hashlib.sha256(payload.encode()).hexdigest()
                 print(f"Pass {idx}/5 | Latency: {latency_ms:.2f} ms | SHA-256: {payload_hash[:16]}...")
+        except urllib.error.HTTPError as e:
+            print(f"[X] Pass {idx} Failed: HTTP Error {e.code}: {e.reason}")
         except Exception as e:
             print(f"[X] Pass {idx} Failed: {e}")
 
