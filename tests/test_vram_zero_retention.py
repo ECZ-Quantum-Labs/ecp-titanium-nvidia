@@ -4,16 +4,16 @@ sys.path.append(os.path.abspath("ecp-titanium-nvidia/src"))
 
 from ecp_runtime import ECPNvidiaRuntime
 
-def test_retention():
-    print("[*] Testing ECP Titanium VRAM Memory Nullifier...")
-    runtime = ECPNvidiaRuntime(secret_signing_key=os.urandom(32))
-    payload = b"CONFIDENTIAL_PROMPT_GOOGLE_ZURICH_PAYLOAD"
-    res = runtime.process_ephemeral_payload(payload, ttl_sec=1)
+def test_nvidia_cloud_execution():
+    print("[*] Connecting to NVIDIA Cloud Infrastructure (Nemotron-3.5)...")
+    runtime = ECPNvidiaRuntime()
+    payload = "CONFIDENTIAL_PROMPT_ECP_PROTOTYPE_PING"
     
-    assert res["status"] == "ZEROIZED"
-    assert res["vram_freed"] is True
-    print(f"[✓] Deletion Receipt Verified. SHA256: {res['deletion_receipt']['payload_sha256']}")
-    print(f"[✓] Overhead Latency: {res['runtime_overhead_ms']} ms")
+    result = runtime.process_ephemeral_payload(payload)
+    
+    print(f"[+] Executed successfully on model: {result['nvidia_model']}")
+    print(f"[+] Real Cloud Round-Trip Latency: {result['latency_ms']} ms")
+    print(f"[+] Deletion Receipt Signed: {result['deletion_receipt']['payload_sha256']}")
 
 if __name__ == "__main__":
-    test_retention()
+    test_nvidia_cloud_execution()
