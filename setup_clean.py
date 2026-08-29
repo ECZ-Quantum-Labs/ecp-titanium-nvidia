@@ -1,4 +1,6 @@
 import os
+
+clean_benchmark_code = """import os
 import time
 import json
 import urllib.request
@@ -46,3 +48,12 @@ def run_nvidia_live_benchmark():
 
 if __name__ == "__main__":
     run_nvidia_live_benchmark()
+"""
+
+with open("benchmarks/run_benchmark.py", "w", encoding="utf-8") as f:
+    f.write(clean_benchmark_code)
+
+if os.path.exists("setup_benchmark.py"):
+    os.remove("setup_benchmark.py")
+
+print("[+] Cleaned API keys from codebase.")
